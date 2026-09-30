@@ -1,1 +1,928 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pensamiento Matemático IV - Fórmula General</title>
+    <!-- MathJax Configuration and Script for Clear Math Rendering -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
+    <!-- Metadata Block -->
+    <!--
+    ==========================================================================
+    SYSTEM / APPLICATION METADATA BLOCK
+    ==========================================================================
+    Project Name     : App Interactiva de Fórmula General
+    Module           : Pensamiento Matemático IV
+    Institution      : Universidad William Osler - Bachillerato (Zihuatanejo, Gro.)
+    Author / Developer: L.I. Luis Arturo López Vergara
+    Edition          : 2026
+    Description      : Artefacto pedagógico interactivo de 3 etapas con renderizado
+                       claro de fórmulas matemáticas (MathJax), simulación dinámica 
+                       con deslizadores y un reto gamificado progresivo (5 casos rápidos 
+                       de 10 pts c/u para desbloquear el reto final en cuaderno).
+    ==========================================================================
+    -->
+    <style>
+        :root {
+            --primary-color: #004488;
+            --secondary-color: #0077cc;
+            --accent-color: #00a86b;
+            --bg-color: #f4f7f9;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 25px 30px;
+            border-radius: var(--border-radius);
+            margin-bottom: 25px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        header .header-text h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        header .header-text p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        header .badge {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border: none;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .nav-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-btn:hover:not(.active) {
+            background-color: #e8eff6;
+        }
+
+        .tab-content {
+            display: none;
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 25px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #eef2f5;
+            padding-bottom: 10px;
+        }
+
+        /* Etapa 1 */
+        .formula-box {
+            background-color: #eef6fc;
+            border-left: 5px solid var(--secondary-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .formula-display {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 15px 0;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .step-list {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .step-list li {
+            margin-bottom: 10px;
+        }
+
+        /* Interactive Slider Box */
+        .slider-section {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+
+        .slider-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .slider-control {
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #cbd5e1;
+        }
+
+        .slider-control label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .slider-control input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .interactive-results {
+            background: #ffffff;
+            border-left: 4px solid var(--accent-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-top: 15px;
+        }
+
+        /* Etapa 2 */
+        .exercise-card {
+            border: 1px solid #e1e8ed;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fafbfc;
+        }
+
+        .exercise-card h3 {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .input-group label {
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        .btn-check {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .btn-check:hover {
+            background-color: var(--primary-color);
+        }
+
+        .feedback {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback.correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        /* Etapa 3 Gamificación Progresiva */
+        .gamification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .score-board {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #856404;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            height: 12px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-color);
+            transition: width 0.4s ease;
+        }
+
+        .phase-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .badge-phase1 { background-color: #cce5ff; color: #004085; }
+        .badge-phase2 { background-color: #d4edda; color: #155724; }
+
+        .notebook-box {
+            background-color: #fffde7;
+            border: 2px dashed #fbc02d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .notebook-box h4 {
+            color: #f57f17;
+            margin-bottom: 10px;
+        }
+
+        .locked-overlay {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #f5c6cb;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 0.85rem;
+            color: #666;
+            border-top: 1px solid #e1e8ed;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            header .badge {
+                text-align: left;
+            }
+            .nav-btn {
+                min-width: 100%;
+            }
+            .formula-display {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="header-text">
+            <h1>Universidad William Osler</h1>
+            <p>Pensamiento Matemático IV — Bachillerato</p>
+        </div>
+        <div class="badge">
+            <p><strong>Catedrático:</strong> L.I. Luis Arturo López Vergara</p>
+            <p>Zihuatanejo, Gro. | Edición 2026</p>
+        </div>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('etapa1')">
+            <span>1️⃣</span> Definición y Teoría
+        </button>
+        <button class="nav-btn" onclick="switchTab('etapa2')">
+            <span>2️⃣</span> Ejercicios Prácticos
+        </button>
+        <button class="nav-btn" onclick="switchTab('etapa3')">
+            <span>3️⃣</span> Reto Gamificado
+        </button>
+    </nav>
+
+    <!-- ETAPA 1: DEFINICIÓN Y TEORÍA -->
+    <section id="etapa1" class="tab-content active">
+        <h2>Etapa 1: Definición y Teoría de la Fórmula General</h2>
+        <p>Las ecuaciones cuadráticas o de segundo grado permiten modelar diversas situaciones reales, como la trayectoria de objetos proyectados, el cálculo de áreas o la maximización de ganancias comerciales.</p>
+        
+        <div class="formula-box">
+            <p>Cualquier ecuación cuadrática puede expresarse de la forma estándar:</p>
+            <div class="formula-display">
+                $$ax^2 + bx + c = 0$$
+            </div>
+            <p>Para encontrar los valores de $x$, se utiliza la <strong>Fórmula General</strong>:</p>
+            <div class="formula-display">
+                $$x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$
+            </div>
+        </div>
+
+        <h3>Componentes Clave:</h3>
+        <ul class="step-list">
+            <li><strong>Coeficientes ($a, b, c$):</strong> Valores numéricos donde $a \neq 0$.</li>
+            <li><strong>Discriminante ($\Delta = b^2 - 4ac$):</strong> Determina la naturaleza de las soluciones:
+                <ul>
+                    <li>Si $\Delta > 0$: Existen 2 soluciones reales distintas.</li>
+                    <li>Si $\Delta = 0$: Existe 1 única solución real doble.</li>
+                    <li>Si $\Delta < 0$: No existen soluciones en los números reales (soluciones complejas).</li>
+                </ul>
+            </li>
+        </ul>
+
+        <!-- SIMULADOR CON DESLIZADORES -->
+        <div class="slider-section">
+            <h3>🎛 Ejemplo Interactivo con Deslizadores</h3>
+            <p>Mueve los deslizadores de los coeficientes $a$, $b$ y $c$ para observar cómo cambia la ecuación, el valor del discriminante y las soluciones en tiempo real:</p>
+            
+            <div class="slider-grid">
+                <div class="slider-control">
+                    <label for="slide-a">Coeficiente $a$: <span id="val-a">-5</span></label>
+                    <input type="range" id="slide-a" min="-10" max="10" value="-5" step="1" oninput="updateInteractiveExample()">
+                </div>
+                <div class="slider-control">
+                    <label for="slide-b">Coeficiente $b$: <span id="val-b">20</span></label>
+                    <input type="range" id="slide-b" min="-30" max="30" value="20" step="1" oninput="updateInteractiveExample()">
+                </div>
+                <div class="slider-control">
+                    <label for="slide-c">Coeficiente $c$: <span id="val-c">15</span></label>
+                    <input type="range" id="slide-c" min="-30" max="30" value="15" step="1" oninput="updateInteractiveExample()">
+                </div>
+            </div>
+
+            <div class="interactive-results">
+                <p><strong>Ecuación resultante:</strong></p>
+                <div id="math-equation" class="formula-display">
+                    $$-5x^2 + 20x + 15 = 0$$
+                </div>
+                
+                <p><strong>Cálculo del Discriminante:</strong></p>
+                <div id="math-discriminant" class="formula-display">
+                    $$\Delta = (20)^2 - 4(-5)(15) = 400 + 300 = 700$$
+                </div>
+
+                <p><strong>Resultados / Soluciones:</strong></p>
+                <div id="math-solutions" class="formula-display">
+                    $$x_1 \approx -0.65, \quad x_2 \approx 4.65$$
+                </div>
+                <p id="math-interpretation" style="font-weight: 600; color: var(--primary-color); margin-top: 10px;">
+                    💡 En contexto real de tiempo: $t = 4.65\text{ segundos}$ (se descarta la solución negativa).
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ETAPA 2: EJERCICIOS PRÁCTICOS -->
+    <section id="etapa2" class="tab-content">
+        <h2>Etapa 2: Ejercicios Prácticos Interactivos</h2>
+        <p>Identifica los coeficientes y responde las preguntas de los casos presentados en tu guía de trabajo.</p>
+
+        <!-- Ejercicio 1 -->
+        <div class="exercise-card">
+            <h3>Ejercicio 1: Lanzamiento de Proyectil</h3>
+            <p>Un proyectil es lanzado hacia arriba desde el suelo con una altura dada por $h(t) = -4t^2 + 16t$. Determina en qué momento toca el suelo nuevamente ($h(t) = 0$).</p>
+            <div class="input-group">
+                <label>$a$:</label>
+                <input type="number" id="e1-a" placeholder="-4">
+                <label>$b$:</label>
+                <input type="number" id="e1-b" placeholder="16">
+                <label>$c$:</label>
+                <input type="number" id="e1-c" placeholder="0">
+            </div>
+            <div class="input-group">
+                <label>Tiempo $t$ (segundos positivos):</label>
+                <input type="number" id="e1-ans" style="width: 100px;" placeholder="t = ?">
+                <button class="btn-check" onclick="checkE1()">Verificar</button>
+            </div>
+            <div id="e1-feedback" class="feedback"></div>
+        </div>
+
+        <!-- Ejercicio 2 -->
+        <div class="exercise-card">
+            <h3>Ejercicio 2: Punto de Equilibrio Empresarial</h3>
+            <p>Una empresa produce artículos y su ganancia depende del precio según $G(x) = -2x^2 + 12x - 10$. ¿A qué precio máximo ($x$) la ganancia vuelve a ser cero?</p>
+            <div class="input-group">
+                <label>$a$:</label>
+                <input type="number" id="e2-a" placeholder="-2">
+                <label>$b$:</label>
+                <input type="number" id="e2-b" placeholder="12">
+                <label>$c$:</label>
+                <input type="number" id="e2-c" placeholder="-10">
+            </div>
+            <div class="input-group">
+                <label>Precio máximo $x$ ($):</label>
+                <input type="number" id="e2-ans" style="width: 100px;" placeholder="x = ?">
+                <button class="btn-check" onclick="checkE2()">Verificar</button>
+            </div>
+            <div id="e2-feedback" class="feedback"></div>
+        </div>
+
+        <!-- Ejercicio 3 -->
+        <div class="exercise-card">
+            <h3>Ejercicio 3: Dimensiones de Terreno Rectangular</h3>
+            <p>El área de un terreno rectangular debe ser de $48\text{ m}^2$. Sus lados miden $x$ y $(x + 4)$. Encuentra el valor positivo de $x$.</p>
+            <p><small><i>Pista: Ecuación $x(x + 4) = 48 \implies x^2 + 4x - 48 = 0$</i></small></p>
+            <div class="input-group">
+                <label>$a$:</label>
+                <input type="number" id="e3-a" placeholder="1">
+                <label>$b$:</label>
+                <input type="number" id="e3-b" placeholder="4">
+                <label>$c$:</label>
+                <input type="number" id="e3-c" placeholder="-48">
+            </div>
+            <div class="input-group">
+                <label>Valor válido de $x$ (metros):</label>
+                <input type="number" id="e3-ans" style="width: 100px;" placeholder="x = ?">
+                <button class="btn-check" onclick="checkE3()">Verificar</button>
+            </div>
+            <div id="e3-feedback" class="feedback"></div>
+        </div>
+    </section>
+
+    <!-- ETAPA 3: GAMIFICACIÓN Y CASO COMPLEJO EN CUADERNO -->
+    <section id="etapa3" class="tab-content">
+        <h2>Etapa 3: Reto Gamificado de Vida Real</h2>
+        
+        <div class="gamification-header">
+            <div style="flex: 1; margin-right: 15px;">
+                <strong>Estatus de Misión:</strong>
+                <span id="game-status">Fase 1: Resuelve los 5 Casos Rápidos (0/50 PTS)</span>
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar"></div>
+                </div>
+            </div>
+            <div class="score-board">
+                Puntaje Total: <span id="score-display">0</span> / 100 PTS
+            </div>
+        </div>
+
+        <!-- FASE 1: 5 CASOS RÁPIDOS (10 PTS CADA UNO = 50 PTS TOTALES) -->
+        <div id="phase1-container">
+            <span class="phase-badge badge-phase1">Fase 1: Desbloqueo de Examen (50 Puntos Necesarios)</span>
+            <p style="margin-bottom: 20px;">Resuelve los 5 casos rápidos interactivos para acumular tus primeros <strong>50 puntos</strong> y desbloquear el caso final complejo para cuaderno.</p>
+
+            <!-- Caso Gamificado 1 -->
+            <div class="exercise-card" id="gcase-card-1">
+                <h3>Caso 1: Caída de Pelota de Golf (10 PTS)</h3>
+                <p>Una pelota es golpeada hacia arriba: $h(t) = -5t^2 + 20t$. ¿En cuántos segundos regresa al suelo ($h=0$)?</p>
+                <div class="input-group">
+                    <label>Respuesta ($t$ segundos):</label>
+                    <input type="number" id="gc1-ans" placeholder="t = ?">
+                    <button class="btn-check" id="btn-gc1" onclick="checkGCase(1, 4, 'gc1-ans', 'btn-gc1', 'gc1-fb')">Validar Caso 1</button>
+                </div>
+                <div id="gc1-fb" class="feedback"></div>
+            </div>
+
+            <!-- Caso Gamificado 2 -->
+            <div class="exercise-card" id="gcase-card-2">
+                <h3>Caso 2: Producción de Panadería en Zihuatanejo (10 PTS)</h3>
+                <p>La ganancia en miles de pesos por hornear $x$ charolas es $G(x) = -x^2 + 8x - 12$. ¿Cuál es la mayor cantidad de charolas $x$ donde la ganancia es cero?</p>
+                <div class="input-group">
+                    <label>Respuesta ($x$ charolas):</label>
+                    <input type="number" id="gc2-ans" placeholder="x = ?">
+                    <button class="btn-check" id="btn-gc2" onclick="checkGCase(2, 6, 'gc2-ans', 'btn-gc2', 'gc2-fb')">Validar Caso 2</button>
+                </div>
+                <div id="gc2-fb" class="feedback"></div>
+            </div>
+
+            <!-- Caso Gamificado 3 -->
+            <div class="exercise-card" id="gcase-card-3">
+                <h3>Caso 3: Señal de Tráfico Triangular (10 PTS)</h3>
+                <p>Un señalamiento tiene un área de $20\text{ m}^2$ con base $x$ y altura $(x + 3)$. Ecuación: $x^2 + 3x - 40 = 0$. Encuentra la base $x$ positiva.</p>
+                <div class="input-group">
+                    <label>Respuesta ($x$ metros):</label>
+                    <input type="number" id="gc3-ans" placeholder="x = ?">
+                    <button class="btn-check" id="btn-gc3" onclick="checkGCase(3, 5, 'gc3-ans', 'btn-gc3', 'gc3-fb')">Validar Caso 3</button>
+                </div>
+                <div id="gc3-fb" class="feedback"></div>
+            </div>
+
+            <!-- Caso Gamificado 4 -->
+            <div class="exercise-card" id="gcase-card-4">
+                <h3>Caso 4: Objeto en Caída Libre desde Edificio (10 PTS)</h3>
+                <p>Un objeto cae desde una plataforma: $h(t) = -5t^2 + 45$. ¿En cuántos segundos impacta el piso ($h=0$)?</p>
+                <div class="input-group">
+                    <label>Respuesta ($t$ segundos):</label>
+                    <input type="number" id="gc4-ans" placeholder="t = ?">
+                    <button class="btn-check" id="btn-gc4" onclick="checkGCase(4, 3, 'gc4-ans', 'btn-gc4', 'gc4-fb')">Validar Caso 4</button>
+                </div>
+                <div id="gc4-fb" class="feedback"></div>
+            </div>
+
+            <!-- Caso Gamificado 5 -->
+            <div class="exercise-card" id="gcase-card-5">
+                <h3>Caso 5: Trayectoria de Chorro de Agua (10 PTS)</h3>
+                <p>Un chorro de fuente sigue la curva $y = -x^2 + 10x - 9$. ¿En qué distancia horizontal máxima $x$ vuelve a tocar la alberca ($y=0$)?</p>
+                <div class="input-group">
+                    <label>Respuesta ($x$ metros):</label>
+                    <input type="number" id="gc5-ans" placeholder="x = ?">
+                    <button class="btn-check" id="btn-gc5" onclick="checkGCase(5, 9, 'gc5-ans', 'btn-gc5', 'gc5-fb')">Validar Caso 5</button>
+                </div>
+                <div id="gc5-fb" class="feedback"></div>
+            </div>
+        </div>
+
+        <!-- FASE 2: DESAFÍO EN CUADERNO (DESBLOQUEADO AL LLEGAR A 50 PTS) -->
+        <div id="phase2-container" style="margin-top: 30px;">
+            <span class="phase-badge badge-phase2">Fase 2: Ejercicio Complejo Final en Cuaderno (50 PTS Restantes)</span>
+
+            <div id="phase2-locked-msg" class="locked-overlay">
+                🔒 SECCIÓN BLOQUEADA: Debes acumular 50 puntos resolviendo correctamente los 5 casos de la Fase 1 para desbloquear el ejercicio del cuaderno.
+            </div>
+
+            <div id="phase2-content" style="display: none;">
+                <div class="notebook-box">
+                    <h4>📋 Caso Desafío Final: El Diseño del Parque Acuático en Zihuatanejo</h4>
+                    <p>Un ingeniero está diseñando un tobogán acuático. La trayectoria parabólica de un clavadista al salir de la rampa se modela mediante la función cuadrática:</p>
+                    <div style="text-align: center; margin: 15px 0;">
+                        $$h(t) = -5t^2 + 15t + 20$$
+                    </div>
+                    <p>Donde $h(t)$ es la altura en metros sobre la alberca y $t$ es el tiempo transcurrido en segundos.</p>
+                    
+                    <hr style="margin: 15px 0; border: 0; border-top: 1px solid #fbc02d;">
+
+                    <p><strong>Instrucciones para resolver en TU CUADERNO:</strong></p>
+                    <ol style="margin-left: 20px; margin-bottom: 15px;">
+                        <li>Escribe la ecuación estandarizada $-5t^2 + 15t + 20 = 0$ para determinar el tiempo total de vuelo hasta tocar el agua ($h = 0$).</li>
+                        <li>Identifica claramente los coeficientes $a$, $b$ y $c$.</li>
+                        <li>Sustituye en la fórmula general y realiza las operaciones paso a paso registrando el valor del discriminante ($\Delta$).</li>
+                        <li>Obtén las dos soluciones ($t_1$ y $t_2$) e interpreta cuál es la numéricamente válida para el problema real.</li>
+                    </ol>
+                </div>
+
+                <div class="exercise-card" style="margin-top: 20px;">
+                    <h3>Validación Final del Cuaderno (50 Puntos Extra)</h3>
+                    <div class="input-group">
+                        <label>Valor del Discriminante ($\Delta = b^2 - 4ac$):</label>
+                        <input type="number" id="g-disc" style="width: 100px;" placeholder="Δ = ?">
+                    </div>
+                    <div class="input-group">
+                        <label>Tiempo válido hasta tocar el agua (segundos):</label>
+                        <input type="number" id="g-time" style="width: 100px;" placeholder="t = ?">
+                    </div>
+                    <button class="btn-check" id="btn-final-challenge" style="background-color: var(--accent-color); width: 100%; padding: 12px;" onclick="validateChallenge()">
+                        🏆 Validar Solución de Cuaderno y Completar 100 PTS
+                    </button>
+                    <div id="g-feedback" class="feedback"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Universidad William Osler — Pensamiento Matemático IV — L.I. Luis Arturo López Vergara</p>
+    </footer>
+</div>
+
+<script>
+    // Tab Switching Functionality
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+        
+        // Re-render MathJax upon switching tabs
+        if (window.MathJax) {
+            MathJax.typesetPromise();
+        }
+    }
+
+    // Dynamic Slider Update (Etapa 1)
+    function updateInteractiveExample() {
+        const a = parseFloat(document.getElementById('slide-a').value);
+        const b = parseFloat(document.getElementById('slide-b').value);
+        const c = parseFloat(document.getElementById('slide-c').value);
+
+        document.getElementById('val-a').innerText = a;
+        document.getElementById('val-b').innerText = b;
+        document.getElementById('val-c').innerText = c;
+
+        // Construct LaTeX Equation String
+        let eqStr = `$$`;
+        if (a !== 0) {
+            eqStr += (a === 1 ? '' : a === -1 ? '-' : a) + `x^2`;
+        }
+        if (b !== 0) {
+            let bSign = b > 0 ? (a !== 0 ? ' + ' : '') : ' - ';
+            let bVal = Math.abs(b) === 1 ? '' : Math.abs(b);
+            eqStr += bSign + bVal + `x`;
+        }
+        if (c !== 0) {
+            let cSign = c > 0 ? ' + ' : ' - ';
+            eqStr += cSign + Math.abs(c);
+        }
+        if (a === 0 && b === 0 && c === 0) eqStr += `0`;
+        eqStr += ` = 0$$`;
+
+        document.getElementById('math-equation').innerHTML = eqStr;
+
+        // Discriminant Calculation
+        const disc = (b * b) - (4 * a * c);
+        document.getElementById('math-discriminant').innerHTML = `$$\\Delta = (${b})^2 - 4(${a})(${c}) = ${disc}$$`;
+
+        // Solutions Calculation
+        let solElem = document.getElementById('math-solutions');
+        let interpElem = document.getElementById('math-interpretation');
+
+        if (a === 0) {
+            solElem.innerHTML = `$$\\text{No es una ecuación cuadrática (a = 0)}$$`;
+            interpElem.innerText = "⚠️ Si a = 0, el término cuadrático desaparece y se convierte en ecuación lineal.";
+        } else if (disc < 0) {
+            solElem.innerHTML = `$$\\text{Sin soluciones reales } (\\Delta < 0)$$`;
+            interpElem.innerText = "⚠️ Discriminante negativo: La trayectoria no toca el eje x o no intercepta el suelo en números reales.";
+        } else if (disc === 0) {
+            const x = (-b / (2 * a)).toFixed(2);
+            solElem.innerHTML = `$$x_1 = x_2 = ${x}$$`;
+            interpElem.innerText = `💡 Solución única (doble): El punto de contacto con el suelo ocurre exactamente en x = ${x}.`;
+        } else {
+            const x1 = ((-b + Math.sqrt(disc)) / (2 * a)).toFixed(2);
+            const x2 = ((-b - Math.sqrt(disc)) / (2 * a)).toFixed(2);
+            solElem.innerHTML = `$$x_1 \\approx ${x1}, \\quad x_2 \\approx ${x2}$$`;
+            
+            // Contextual hint
+            const posSol = [x1, x2].filter(v => parseFloat(v) >= 0);
+            if (posSol.length > 0) {
+                interpElem.innerText = `💡 En un contexto real (como tiempo o distancia), elegimos la solución física válida: t = ${Math.max(...posSol.map(Number))} unidades.`;
+            } else {
+                interpElem.innerText = `💡 Ambas soluciones son negativas, lo que indica que en el contexto físico real el evento no ocurre en tiempo futuro.`;
+            }
+        }
+
+        // Re-render MathJax for the dynamic formulas
+        if (window.MathJax) {
+            MathJax.typesetPromise([
+                document.getElementById('math-equation'),
+                document.getElementById('math-discriminant'),
+                document.getElementById('math-solutions')
+            ]);
+        }
+    }
+
+    // Checking Functions for Etapa 2
+    function checkE1() {
+        const a = parseFloat(document.getElementById('e1-a').value);
+        const b = parseFloat(document.getElementById('e1-b').value);
+        const c = parseFloat(document.getElementById('e1-c').value);
+        const ans = parseFloat(document.getElementById('e1-ans').value);
+        const fb = document.getElementById('e1-feedback');
+
+        if (a === -4 && b === 16 && c === 0 && ans === 4) {
+            fb.className = "feedback correct";
+            fb.innerHTML = "¡Correcto! Coeficientes a=-4, b=16, c=0. Soluciones: t=0 s (inicio) y t=4 s (caída).";
+        } else {
+            fb.className = "feedback incorrect";
+            fb.innerHTML = "Revisa los datos. Recuerda: a=-4, b=16, c=0. Al resolver, t = 4 segundos.";
+        }
+    }
+
+    function checkE2() {
+        const a = parseFloat(document.getElementById('e2-a').value);
+        const b = parseFloat(document.getElementById('e2-b').value);
+        const c = parseFloat(document.getElementById('e2-c').value);
+        const ans = parseFloat(document.getElementById('e2-ans').value);
+        const fb = document.getElementById('e2-feedback');
+
+        if (a === -2 && b === 12 && c === -10 && ans === 5) {
+            fb.className = "feedback correct";
+            fb.innerHTML = "¡Excelente! Coeficientes a=-2, b=12, c=-10. Las soluciones son x=1 y x=5. El precio máximo con ganancia 0 es $5.";
+        } else {
+            fb.className = "feedback incorrect";
+            fb.innerHTML = "Incorrecto. Verifica que a=-2, b=12, c=-10. El precio máximo solución es x = 5.";
+        }
+    }
+
+    function checkE3() {
+        const a = parseFloat(document.getElementById('e3-a').value);
+        const b = parseFloat(document.getElementById('e3-b').value);
+        const c = parseFloat(document.getElementById('e3-c').value);
+        const ans = parseFloat(document.getElementById('e3-ans').value);
+        const fb = document.getElementById('e3-feedback');
+
+        if (a === 1 && b === 4 && c === -48 && ans === 6) {
+            fb.className = "feedback correct";
+            fb.innerHTML = "¡Correcto! Ecuación x² + 4x - 48 = 0. Soluciones: x = -12 (descartada por distancia) y x = 6 m.";
+        } else {
+            fb.className = "feedback incorrect";
+            fb.innerHTML = "Revisa el procedimiento. a=1, b=4, c=-48. El valor positivo válido para el terreno es x = 6.";
+        }
+    }
+
+    // Gamification Logic for Etapa 3
+    let score = 0;
+    let solvedCasesCount = 0;
+    const solvedCases = { 1: false, 2: false, 3: false, 4: false, 5: false };
+
+    function checkGCase(caseNum, correctAns, inputId, btnId, fbId) {
+        if (solvedCases[caseNum]) return; // Ya resuelto previamente
+
+        const userAns = parseFloat(document.getElementById(inputId).value);
+        const fb = document.getElementById(fbId);
+
+        if (userAns === correctAns) {
+            solvedCases[caseNum] = true;
+            solvedCasesCount++;
+            score += 10;
+            
+            // Actualizar UI
+            document.getElementById(score-display).innerText = score;
+            document.getElementById(inputId).disabled = true;
+            const btn = document.getElementById(btnId);
+            btn.disabled = true;
+            btn.style.backgroundColor = "#6c757d";
+            btn.innerText = "✓ Resuelto (+10 PTS)";
+
+            fb.className = "feedback correct";
+            fb.innerHTML = `¡Correcto! Sumas +10 PTS. (Casos resueltos: ${solvedCasesCount}/5).`;
+
+            // Actualizar barra de progreso
+            const progressPercent = (score / 100) * 100;
+            document.getElementById('progress-bar').style.width = progressPercent + '%';
+
+            if (score < 50) {
+                document.getElementById('game-status').innerText = `Fase 1: Resuelve los 5 Casos Rápidos (${score}/50 PTS)`;
+            } else if (score === 50) {
+                unlockPhase2();
+            }
+        } else {
+            fb.className = "feedback incorrect";
+            fb.innerHTML = "Respuesta incorrecta. Inténtalo de nuevo realizando tus cálculos con la fórmula general.";
+        }
+    }
+
+    function unlockPhase2() {
+        document.getElementById('game-status').innerText = "¡Fase 1 Completada! 🎉 Fase 2 Desbloqueada: Ejercicio en Cuaderno";
+        document.getElementById('game-status').style.color = "#28a745";
+        document.getElementById('phase2-locked-msg').style.display = "none";
+        document.getElementById('phase2-content').style.display = "block";
+        
+        if (window.MathJax) {
+            MathJax.typesetPromise([document.getElementById('phase2-content')]);
+        }
+    }
+
+    function validateChallenge() {
+        const disc = parseFloat(document.getElementById('g-disc').value);
+        const time = parseFloat(document.getElementById('g-time').value);
+        const fb = document.getElementById('g-feedback');
+
+        if (disc === 625 && time === 4) {
+            score = 100;
+            document.getElementById('score-display').innerText = score;
+            document.getElementById('game-status').innerText = "🏆 ¡Misión Cumplida! Has alcanzado los 100 Puntos Totales.";
+            document.getElementById('progress-bar').style.width = '100%';
+
+            const btn = document.getElementById('btn-final-challenge');
+            btn.disabled = true;
+            btn.style.backgroundColor = "#6c757d";
+            btn.innerText = "✓ Ejercicio Validado (+50 PTS)";
+
+            fb.className = "feedback correct";
+            fb.innerHTML = "¡Felicidades! Has completado con éxito la actividad gamificada y el ejercicio en cuaderno.<br>" + 
+                           "<strong>Discriminante:</strong> Δ = 625<br>" + 
+                           "<strong>Tiempo de vuelo:</strong> t = 4 segundos.";
+        } else {
+            fb.className = "feedback incorrect";
+            fb.innerHTML = "Respuesta incorrecta. Asegúrate de calcular bien en tu cuaderno:<br>" +
+                           "• Coeficientes: a = -5, b = 15, c = 20<br>" +
+                           "• Discriminante: Δ = (15)² - 4(-5)(20)<br>" +
+                           "• Aplica la fórmula general paso a paso.";
+        }
+    }
+
+    // Initial load setup
+    window.onload = function() {
+        updateInteractiveExample();
+    };
+</script>
+
+</body>
+</html>
